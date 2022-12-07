@@ -1,0 +1,7 @@
+.idea
+*.log
+*.exe
+logs
+lazycli
+lazy-cli
+main.go
