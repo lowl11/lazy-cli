@@ -5,15 +5,24 @@ import (
 	"github.com/lowl11/lazy-cli/cli_route"
 )
 
-func (cli *Cli) Route(handler cli_route.Handler, path ...string) {
+func (cli *Cli) Middleware(middlewareHandler cli_route.Handler) *Cli {
+	route := cli_route.New(middlewareHandler)
+	route.Params(cli.params()...)
+
+	cli.middlewares.Push(route)
+	return cli
+}
+
+func (cli *Cli) Route(handler cli_route.Handler, path ...string) *Cli {
 	if len(path) == 0 {
-		return
+		return cli
 	}
 
 	route := cli_route.New(handler, path...)
 	route.Params(cli.params()...)
 
 	cli.routes.Push(route)
+	return cli
 }
 
 func (cli *Cli) Start() error {
@@ -28,6 +37,13 @@ func (cli *Cli) Start() error {
 	route := cli.matchRoute()
 	if route == nil {
 		return errors.New("route not found")
+	}
+
+	// run middlewares before running handler
+	for _, middlewareHandler := range cli.middlewares.Slice() {
+		if err := middlewareHandler.Run(); err != nil {
+			return err
+		}
 	}
 
 	return route.Run()

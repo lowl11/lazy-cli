@@ -29,6 +29,13 @@ type CliRoute struct {
 }
 
 func New(handler Handler, path ...string) CliRoute {
+	// if path is empty, it is middleware
+	if len(path) == 0 {
+		return CliRoute{
+			handler: handler,
+		}
+	}
+
 	// endpoint
 	var endpoint string
 	var withEndpoint bool

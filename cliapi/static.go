@@ -1,7 +1,11 @@
 package cliapi
 
-import "os"
+import (
+	"flag"
+	"os"
+)
 
 func Arguments() []string {
+	flag.Parse()
 	return os.Args[1:]
 }
